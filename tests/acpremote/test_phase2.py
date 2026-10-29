@@ -33,6 +33,7 @@ from acpremote import (
 )
 from websockets.asyncio.client import connect
 from websockets.exceptions import InvalidStatus
+from websockets.typing import Subprotocol
 
 
 @dataclass(slots=True)
@@ -215,10 +216,10 @@ async def test_phase2_http_metadata_and_health_routes_are_served() -> None:
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("subprotocols", "expected_subprotocol"),
-    [(["acp.v1"], "acp.v1"), (None, None)],
+    [([Subprotocol("acp.v1")], "acp.v1"), (None, None)],
 )
 async def test_phase2_websocket_negotiates_acp_v1_optionally(
-    subprotocols: list[str] | None,
+    subprotocols: list[Subprotocol] | None,
     expected_subprotocol: str | None,
 ) -> None:
     server = await serve_acp(cast("Agent", _EchoAgent()))

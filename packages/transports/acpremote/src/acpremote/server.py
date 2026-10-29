@@ -12,6 +12,7 @@ from acp.interfaces import Agent
 from websockets.asyncio.server import Server, ServerConnection, serve
 from websockets.datastructures import Headers
 from websockets.http11 import Request, Response
+from websockets.typing import Subprotocol
 
 from .auth import is_bearer_authorized
 from .command import CommandOptions, run_remote_command_connection
@@ -27,13 +28,15 @@ __all__ = (
     "serve_stdio_command",
 )
 
+_ACP_SUBPROTOCOL = Subprotocol("acp.v1")
+
 
 def _select_acp_subprotocol(
     connection: ServerConnection,
-    subprotocols: Sequence[str],
-) -> str | None:
+    subprotocols: Sequence[Subprotocol],
+) -> Subprotocol | None:
     del connection
-    return "acp.v1" if "acp.v1" in subprotocols else None
+    return _ACP_SUBPROTOCOL if _ACP_SUBPROTOCOL in subprotocols else None
 
 
 async def run_remote_agent_connection(
@@ -95,7 +98,7 @@ async def serve_remote_agent(
         close_timeout=resolved_transport.close_timeout,
         max_size=resolved_transport.max_size,
         max_queue=resolved_transport.max_queue,
-        subprotocols=["acp.v1"],
+        subprotocols=[_ACP_SUBPROTOCOL],
         select_subprotocol=_select_acp_subprotocol,
     )
 
@@ -196,7 +199,7 @@ async def serve_stdio_command(
         close_timeout=resolved_transport.close_timeout,
         max_size=resolved_transport.max_size,
         max_queue=resolved_transport.max_queue,
-        subprotocols=["acp.v1"],
+        subprotocols=[_ACP_SUBPROTOCOL],
         select_subprotocol=_select_acp_subprotocol,
     )
 
