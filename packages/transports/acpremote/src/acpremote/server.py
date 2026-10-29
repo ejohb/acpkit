@@ -2,6 +2,7 @@ from __future__ import annotations as _annotations
 
 import json
 import os
+from collections.abc import Sequence
 from http import HTTPStatus
 from typing import Literal
 from urllib.parse import urlsplit
@@ -25,6 +26,14 @@ __all__ = (
     "serve_remote_agent",
     "serve_stdio_command",
 )
+
+
+def _select_acp_subprotocol(
+    connection: ServerConnection,
+    subprotocols: Sequence[str],
+) -> str | None:
+    del connection
+    return "acp.v1" if "acp.v1" in subprotocols else None
 
 
 async def run_remote_agent_connection(
@@ -86,6 +95,8 @@ async def serve_remote_agent(
         close_timeout=resolved_transport.close_timeout,
         max_size=resolved_transport.max_size,
         max_queue=resolved_transport.max_queue,
+        subprotocols=["acp.v1"],
+        select_subprotocol=_select_acp_subprotocol,
     )
 
 
@@ -185,6 +196,8 @@ async def serve_stdio_command(
         close_timeout=resolved_transport.close_timeout,
         max_size=resolved_transport.max_size,
         max_queue=resolved_transport.max_queue,
+        subprotocols=["acp.v1"],
+        select_subprotocol=_select_acp_subprotocol,
     )
 
 
